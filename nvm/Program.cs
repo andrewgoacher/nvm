@@ -1,5 +1,6 @@
 ﻿
 using nvm.Commands;
+using nvm.Node;
 using System.CommandLine;
 
 namespace nvm
@@ -8,11 +9,15 @@ namespace nvm
     {
         public static async Task<int> Main(string[] args)
         {
-            var nodeService = new NodeService();
+            var config = new Configuration.Config(
+                url: "https://nodejs.org/dist/",
+                installPath: @"C:\Users\andre\AppData\Roaming\nvm");
+
+            var nodeService = new FetchNodeVersions(config);
 
             var rootCommand = new RootCommand()
             {
-                new ListCommand(nodeService),
+                new ListCommand(config, nodeService),
                 new InstallCommand(),
                 new UninstallCommand(),
                 new LocationCommand(),
