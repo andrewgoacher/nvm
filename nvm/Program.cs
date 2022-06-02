@@ -8,9 +8,11 @@ namespace nvm
     {
         public static async Task<int> Main(string[] args)
         {
+            var nodeService = new NodeService();
+
             var rootCommand = new RootCommand()
             {
-                new ListCommand(),
+                new ListCommand(nodeService),
                 new InstallCommand(),
                 new UninstallCommand(),
                 new LocationCommand(),
