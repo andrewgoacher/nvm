@@ -14,17 +14,18 @@ namespace nvm
                 installPath: @"C:\Users\andre\AppData\Roaming\nvm");
 
             var nodeService = new FetchNodeVersions(config);
+            var localVersionService = new LocalVersionService(config);
 
             var rootCommand = new RootCommand()
             {
-                new ListCommand(config, nodeService),
+                new ListCommand(nodeService, localVersionService),
                 new InstallCommand(),
                 new UninstallCommand(),
                 new LocationCommand(),
                 new EnvCommand(),
                 new RcCommand(),
                 new CurrentCommand(),
-                new UseCommand()
+                new UseCommand(localVersionService)
             };
 
 
