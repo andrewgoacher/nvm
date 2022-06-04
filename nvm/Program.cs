@@ -15,11 +15,12 @@ namespace nvm
 
             var nodeService = new FetchNodeVersions(config);
             var localVersionService = new LocalVersionService(config);
+            var downloadNodeService = new DownloadNodeService(config);
 
             var rootCommand = new RootCommand()
             {
                 new ListCommand(nodeService, localVersionService),
-                new InstallCommand(),
+                new InstallCommand(nodeService, localVersionService, downloadNodeService),
                 new UninstallCommand(),
                 new LocationCommand(),
                 new EnvCommand(),
