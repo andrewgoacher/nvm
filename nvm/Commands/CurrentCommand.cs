@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+﻿using nvm.Configuration;
+using System.CommandLine;
 
 namespace nvm.Commands
 {
@@ -9,7 +10,17 @@ namespace nvm.Commands
         {
             this.SetHandler(() =>
             {
-                Console.WriteLine("The currently set version");
+                var currentVersion = Environment.GetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, EnvironmentVariableTarget.User);
+
+                if (string.IsNullOrEmpty(currentVersion))
+                {
+                    Console.WriteLine("Current version not set");
+                }
+                else
+                {
+                    Console.WriteLine("Current version: {0}", currentVersion);
+                }
+
             });
         }
     }

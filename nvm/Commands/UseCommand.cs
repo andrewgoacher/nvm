@@ -25,7 +25,7 @@ namespace nvm.Commands
             this.SetHandler((string version) =>
             {
                 var installVersion = version.StartsWith("v") ? version : $"v{version}";
-                Environment.SetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, installVersion);
+                Environment.SetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, installVersion, EnvironmentVariableTarget.User);
 
                 Console.WriteLine("Current version set to {0}", installVersion);
             }, _versionArg);
