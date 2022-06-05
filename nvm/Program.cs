@@ -21,13 +21,16 @@ namespace nvm
             {
                 new ListCommand(nodeService, localVersionService),
                 new InstallCommand(nodeService, localVersionService, downloadNodeService),
-                new UninstallCommand(),
+                new UninstallCommand(downloadNodeService),
                 new LocationCommand(),
                 new EnvCommand(),
-                new RcCommand(),
+                //new RcCommand(),
                 new CurrentCommand(),
-                new UseCommand(localVersionService)
+                new UseCommand(localVersionService),
+                new RunCommand(config)
             };
+
+            rootCommand.TreatUnmatchedTokensAsErrors = false;
 
 
             return await rootCommand.InvokeAsync(args);

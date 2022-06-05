@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+﻿using nvm.Configuration;
+using System.CommandLine;
 
 namespace nvm.Commands
 {
@@ -9,7 +10,9 @@ namespace nvm.Commands
         {
             this.SetHandler(() =>
             {
-                Console.WriteLine("Gets the env value");
+                Console.WriteLine("{0}: {1}",
+                    EnvironmentVariables.CURRENT_VERSION_KEY,
+                    Environment.GetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, EnvironmentVariableTarget.User));
             });
         }
     }

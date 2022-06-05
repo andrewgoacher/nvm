@@ -14,6 +14,12 @@ namespace nvm.Node
             _httpClient = new HttpClient();
         }
 
+        public void RemoveNodeVersion(string version)
+        {
+            var path = Path.Combine(_config.NodeInstallPath, version);
+            Directory.Delete(path);
+        }
+
         public async Task DownloadNodeVersion(string version)
         {
             var name = $"node-{version}-win-x64";

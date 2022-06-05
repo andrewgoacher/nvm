@@ -2,7 +2,7 @@
   "profiles": {
     "nvm": {
       "commandName": "Project",
-      "commandLineArgs": "install 18.3.0"
+      "commandLineArgs": "run npm --target 14.18.3 -v"
     }
   }
 }
