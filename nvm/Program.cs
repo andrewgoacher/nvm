@@ -36,15 +36,15 @@ namespace nvm
             serviceCollection.AddScoped<LocalVersionService>();
             serviceCollection.AddScoped<DownloadNodeService>();
 
-            serviceCollection.AddScoped<Command, ListCommand>();
-            serviceCollection.AddScoped<Command, InstallCommand>();
-            serviceCollection.AddScoped<Command, UninstallCommand>();
-            serviceCollection.AddScoped<Command, LocationCommand>();
-            serviceCollection.AddScoped<Command, EnvCommand>();
-            serviceCollection.AddScoped<Command, RcCommand>();
-            serviceCollection.AddScoped<Command, CurrentCommand>();
-            serviceCollection.AddScoped<Command, UseCommand>();
-            serviceCollection.AddScoped<Command, RunCommand>();
+            //serviceCollection.AddScoped<Command, ListCommand>();
+            //serviceCollection.AddScoped<Command, InstallCommand>();
+            //serviceCollection.AddScoped<Command, UninstallCommand>();
+            //serviceCollection.AddScoped<Command, LocationCommand>();
+            //serviceCollection.AddScoped<Command, EnvCommand>();
+            //serviceCollection.AddScoped<Command, RcCommand>();
+            //serviceCollection.AddScoped<Command, CurrentCommand>();
+            //serviceCollection.AddScoped<Command, UseCommand>();
+            //serviceCollection.AddScoped<Command, RunCommand>();
 
             return serviceCollection.BuildServiceProvider();
         }
