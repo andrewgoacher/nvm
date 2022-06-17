@@ -1,4 +1,4 @@
-﻿
+﻿using Microsoft.Extensions.DependencyInjection;
 using nvm.Commands;
 using nvm.Node;
 using System.CommandLine;
@@ -9,22 +9,32 @@ namespace nvm
     {
         public static async Task<int> Main(string[] args)
         {
-            var nodeService = new FetchNodeVersions();
-            var localVersionService = new LocalVersionService();
-            var downloadNodeService = new DownloadNodeService();
+            var serviceCollection = new ServiceCollection();
 
-            var rootCommand = new RootCommand()
+            serviceCollection.AddScoped<FetchNodeVersions>();
+            serviceCollection.AddScoped<LocalVersionService>();
+            serviceCollection.AddScoped<DownloadNodeService>();
+
+            serviceCollection.AddScoped<Command, ListCommand>();
+            serviceCollection.AddScoped<Command, InstallCommand>();
+            serviceCollection.AddScoped<Command, UninstallCommand>();
+            serviceCollection.AddScoped<Command, LocationCommand>();
+            serviceCollection.AddScoped<Command, EnvCommand>();
+            serviceCollection.AddScoped<Command, RcCommand>();
+            serviceCollection.AddScoped<Command, CurrentCommand>();
+            serviceCollection.AddScoped<Command, UseCommand>();
+            serviceCollection.AddScoped<Command, RunCommand>();
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            var rootCommand = new RootCommand(
+                "nvm allows the user to run and manage multiple versions of node.");
+
+            foreach(var command in provider.GetServices<Command>())
             {
-                new ListCommand(nodeService, localVersionService),
-                new InstallCommand(nodeService, localVersionService, downloadNodeService),
-                new UninstallCommand(downloadNodeService),
-                new LocationCommand(),
-                new EnvCommand(),
-                //new RcCommand(),
-                new CurrentCommand(),
-                new UseCommand(localVersionService),
-                new RunCommand()
-            };
+                rootCommand.AddCommand(command);
+            }
+
 
             rootCommand.TreatUnmatchedTokensAsErrors = false;
 
