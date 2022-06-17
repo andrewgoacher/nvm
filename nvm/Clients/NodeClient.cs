@@ -1,14 +1,21 @@
 ﻿using nvm.Configuration;
+using nvm.Exceptions;
+using nvm.Serialization.Json.Converters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
-namespace nvm.Node
+namespace nvm.Clients
 {
-    internal class FetchNodeVersions : IDisposable
+    internal class NodeClient
     {
         readonly HttpClient _httpClient;
 
-        public FetchNodeVersions()
+        public NodeClient()
         {
             _httpClient = new HttpClient();
         }
@@ -41,14 +48,21 @@ namespace nvm.Node
                 if (string.IsNullOrEmpty(version.VersionString)) { return null; }
                 if (string.IsNullOrEmpty(version.Date)) { return null; }
 
-                return NodeVersion.Parse(version.VersionString, version.Date, index == 0);
+                return NodeVersion.Parse(
+                    version.VersionString,
+                    version.Date,
+                    isLatest: (index == 0),
+                    isLts: version.Lts);
             }
-
         }
 
-        public void Dispose()
+        public async Task<Stream> DownloadZipAsync(string version)
         {
-            _httpClient.Dispose();
+            var name = $"node-{version}-win-x64";
+            var url = $"{Config.NodeDistUrl}{version}/{name}.zip";
+
+            var data = await _httpClient.GetStreamAsync(url);
+            return data;
         }
 
         private class Version
@@ -64,6 +78,9 @@ namespace nvm.Node
 
             [JsonPropertyName("npm")]
             public string? Npm { get; set; }
+
+            [JsonPropertyName("lts"), JsonConverter(typeof(StringBoolConverter))]
+            public string Lts { get; set; }
         }
     }
 }

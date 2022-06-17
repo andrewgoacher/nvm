@@ -16,9 +16,9 @@ namespace nvm.Configuration
             get => ReadEnvironmentVariable(NODE_URL_KEY, "https://nodejs.org/dist/");
             set => SetEnvironmentVariable(NODE_URL_KEY, value);
         }
-        public static string? NodeInstallPath
+        public static string NodeInstallPath
         {
-            get => ReadEnvironmentVariable(INSTALL_FOLDER_KEY, GetDefaultInstallFolder());
+            get => ReadEnvironmentVariable(INSTALL_FOLDER_KEY, GetDefaultInstallFolder())!;
             set => SetEnvironmentVariable(INSTALL_FOLDER_KEY, SetInstallFolder(value));
         }
 
@@ -46,6 +46,11 @@ namespace nvm.Configuration
 
         private static string SetInstallFolder(string? path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path!);

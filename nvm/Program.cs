@@ -1,7 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using nvm.Clients;
 using nvm.Commands;
-using nvm.Node;
 using System.CommandLine;
+
+
+// lts: gallium = latest-gallium/
+// current is first
 
 namespace nvm
 {
@@ -32,11 +36,10 @@ namespace nvm
 
         private static IServiceProvider RegisterServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<FetchNodeVersions>();
-            serviceCollection.AddScoped<LocalVersionService>();
-            serviceCollection.AddScoped<DownloadNodeService>();
+            serviceCollection.AddScoped<NodeClient>();
+            serviceCollection.AddScoped<FileSystemClient>();
 
-            //serviceCollection.AddScoped<Command, ListCommand>();
+            serviceCollection.AddScoped<Command, ListCommand>();
             //serviceCollection.AddScoped<Command, InstallCommand>();
             //serviceCollection.AddScoped<Command, UninstallCommand>();
             //serviceCollection.AddScoped<Command, LocationCommand>();

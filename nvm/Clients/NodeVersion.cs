@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace nvm.Node
+namespace nvm.Clients
 {
     internal class NodeVersion
     {
@@ -14,18 +14,20 @@ namespace nvm.Node
         private int _minor;
         private int _patch;
         private bool _isLatest;
+        private string _ltsValue;
 
-        private NodeVersion(int major, int minor, int patch, DateOnly releaseDate, bool islatest)
+        private NodeVersion(int major, int minor, int patch, DateOnly releaseDate, bool islatest, string ltsValue)
         {
             _major = major;
             _minor = minor;
             _patch = patch;
             ReleaseDate = releaseDate;
             _isLatest = islatest;
+            _ltsValue = ltsValue;
         }
 
         public bool IsLatest => _isLatest;
-
+        public string LtsValue => _ltsValue;
         public int Major => _major;
         public int Minor => _major;
         public int Patch => _major;
@@ -34,13 +36,12 @@ namespace nvm.Node
         {
             get
             {
-                var latestString = IsLatest ? " (Latest)" : "";
-                return $"v{_major}.{_minor}.{_patch}{latestString}";
+                return $"v{_major}.{_minor}.{_patch}";
             }
         }
         public DateOnly ReleaseDate { get; }
 
-        public static NodeVersion? Parse(string version, string date, bool isLatest = false)
+        public static NodeVersion? Parse(string version, string date, bool isLatest = false, string isLts = "")
         {
             try
             {
@@ -52,7 +53,7 @@ namespace nvm.Node
                 {
                     return null;
                 }
-                return new NodeVersion(major, minor, patch, parsedDate.Value, latest);
+                return new NodeVersion(major, minor, patch, parsedDate.Value, latest, isLts);
             }
             catch
             {

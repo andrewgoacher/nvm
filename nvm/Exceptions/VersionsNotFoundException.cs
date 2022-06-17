@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace nvm.Node
+namespace nvm.Exceptions
 {
     [Serializable]
     internal class VersionsNotFoundException : Exception
