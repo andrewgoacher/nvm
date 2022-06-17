@@ -7,17 +7,15 @@ namespace nvm.Node
     internal class FetchNodeVersions : IDisposable
     {
         readonly HttpClient _httpClient;
-        readonly Config _config;
 
-        public FetchNodeVersions(Config config)
+        public FetchNodeVersions()
         {
-            _config = config;
             _httpClient = new HttpClient();
         }
 
         public async Task<IEnumerable<NodeVersion>> GetAllNodeVersionsAsync()
         {
-            var url = $"{_config.NodeDistUrl}index.json";
+            var url = $"{Config.NodeDistUrl}index.json";
 
             var content = await _httpClient.GetStringAsync(url);
 

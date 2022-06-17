@@ -10,9 +10,11 @@ namespace nvm.Commands
         {
             this.SetHandler(() =>
             {
-                Console.WriteLine("{0}: {1}",
-                    EnvironmentVariables.CURRENT_VERSION_KEY,
-                    Environment.GetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, EnvironmentVariableTarget.User));
+                foreach(var kvp in Config.EnumerateValues())
+                {
+                    Console.WriteLine("{0}: {1}",
+                        kvp.Key, kvp.Value);
+                }
             });
         }
     }

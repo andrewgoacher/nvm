@@ -4,16 +4,13 @@ namespace nvm
 {
     internal class LocalVersionService
     {
-        readonly string _installPath;
-
-        public LocalVersionService(Config config)
+        public LocalVersionService()
         {
-            _installPath = config.NodeInstallPath;
         }
 
         public IEnumerable<string> GetLocalVersions()
         {
-            var dirs = Directory.GetDirectories(_installPath);
+            var dirs = Directory.GetDirectories(Config.NodeInstallPath!);
             return dirs
                 .Select(dir => Path.GetFileName(dir) ?? "")
                 .Where(dir => dir.StartsWith("v"));

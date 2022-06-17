@@ -6,7 +6,7 @@ namespace nvm.Commands
 {
     internal class RunCommand : Command
     {
-        public RunCommand(Config config) : base(
+        public RunCommand() : base(
             "run", 
             "Runs npm, npx or node")
         {
@@ -23,10 +23,10 @@ namespace nvm.Commands
             {
                 
                 var runVersion = string.IsNullOrEmpty(version) ?
-                    Environment.GetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, EnvironmentVariableTarget.User) :
+                    Config.CurrentNodeVersion :
                     SanitiseVersionName(version);
 
-                var path = Path.Combine(config.NodeInstallPath, runVersion!, GetCommand(command));
+                var path = Path.Combine(Config.NodeInstallPath!, runVersion!, GetCommand(command));
 
                 var args = Environment.GetCommandLineArgs();
 

@@ -10,7 +10,7 @@ namespace nvm.Commands
         {
             this.SetHandler(() =>
             {
-                var currentVersion = Environment.GetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, EnvironmentVariableTarget.User);
+                var currentVersion = Config.CurrentNodeVersion;
 
                 if (string.IsNullOrEmpty(currentVersion))
                 {

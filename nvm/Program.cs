@@ -9,13 +9,9 @@ namespace nvm
     {
         public static async Task<int> Main(string[] args)
         {
-            var config = new Configuration.Config(
-                url: "https://nodejs.org/dist/",
-                installPath: @"C:\Users\andre\AppData\Roaming\nvm");
-
-            var nodeService = new FetchNodeVersions(config);
-            var localVersionService = new LocalVersionService(config);
-            var downloadNodeService = new DownloadNodeService(config);
+            var nodeService = new FetchNodeVersions();
+            var localVersionService = new LocalVersionService();
+            var downloadNodeService = new DownloadNodeService();
 
             var rootCommand = new RootCommand()
             {
@@ -27,7 +23,7 @@ namespace nvm
                 //new RcCommand(),
                 new CurrentCommand(),
                 new UseCommand(localVersionService),
-                new RunCommand(config)
+                new RunCommand()
             };
 
             rootCommand.TreatUnmatchedTokensAsErrors = false;

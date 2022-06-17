@@ -39,7 +39,7 @@ namespace nvm.Commands
 
                 if (use)
                 {
-                    Environment.SetEnvironmentVariable(EnvironmentVariables.CURRENT_VERSION_KEY, sanitisedVersion, EnvironmentVariableTarget.User);
+                    Config.CurrentNodeVersion = sanitisedVersion;
                 }
 
 
