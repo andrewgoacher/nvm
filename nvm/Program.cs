@@ -9,8 +9,29 @@ namespace nvm
     {
         public static async Task<int> Main(string[] args)
         {
-            var serviceCollection = new ServiceCollection();
+            var provider = RegisterServices(new ServiceCollection());
+            var rootCommand = CreateRootCommand(provider);
 
+            return await rootCommand.InvokeAsync(args);
+        }
+
+        private static RootCommand CreateRootCommand(IServiceProvider provider)
+        {
+            var rootCommand = new RootCommand(
+                "nvm allows the user to run and manage multiple versions of node.");
+
+            foreach (var command in provider.GetServices<Command>())
+            {
+                rootCommand.AddCommand(command);
+            }
+
+            rootCommand.TreatUnmatchedTokensAsErrors = false;
+
+            return rootCommand;
+        }
+
+        private static IServiceProvider RegisterServices(IServiceCollection serviceCollection)
+        {
             serviceCollection.AddScoped<FetchNodeVersions>();
             serviceCollection.AddScoped<LocalVersionService>();
             serviceCollection.AddScoped<DownloadNodeService>();
@@ -25,21 +46,7 @@ namespace nvm
             serviceCollection.AddScoped<Command, UseCommand>();
             serviceCollection.AddScoped<Command, RunCommand>();
 
-            var provider = serviceCollection.BuildServiceProvider();
-
-            var rootCommand = new RootCommand(
-                "nvm allows the user to run and manage multiple versions of node.");
-
-            foreach(var command in provider.GetServices<Command>())
-            {
-                rootCommand.AddCommand(command);
-            }
-
-
-            rootCommand.TreatUnmatchedTokensAsErrors = false;
-
-
-            return await rootCommand.InvokeAsync(args);
+            return serviceCollection.BuildServiceProvider();
         }
     }
 }
