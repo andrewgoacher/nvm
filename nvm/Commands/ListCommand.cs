@@ -1,7 +1,6 @@
 ﻿using nvm.Clients;
 using nvm.Configuration;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 
 namespace nvm.Commands
 {
@@ -9,14 +8,17 @@ namespace nvm.Commands
     {
         private readonly NodeClient _nodeClient;
         private readonly FileSystemClient _fileSystem;
+        private readonly Config _config;
         private readonly Option<bool> _allOption;
         private readonly Option<bool> _dateOption;
 
         public ListCommand(
+            Config config,
             NodeClient nodeClient,
             FileSystemClient fileSystem) : base("list",
             "Lists versions of node use --all to list all versions of node available")
         {
+            _config = config;
             _nodeClient = nodeClient;
             _fileSystem = fileSystem;
 
@@ -96,7 +98,7 @@ namespace nvm.Commands
                 return Enumerable.Empty<MappedNodeVersion>();
             }
 
-            var currentNodeVersion = Config.CurrentNodeVersion;
+            var currentNodeVersion = _config.CurrentNodeVersion;
 
             var isLts = false;
             var returnItems = new List<MappedNodeVersion>();

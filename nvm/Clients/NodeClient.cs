@@ -1,28 +1,25 @@
 ﻿using nvm.Configuration;
 using nvm.Exceptions;
 using nvm.Serialization.Json.Converters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace nvm.Clients
 {
     internal class NodeClient
     {
         readonly HttpClient _httpClient;
+        readonly Config _config;
 
-        public NodeClient()
+        public NodeClient(Config config)
         {
             _httpClient = new HttpClient();
+            _config = config;
         }
 
         public async Task<IEnumerable<NodeVersion>> GetAllNodeVersionsAsync()
         {
-            var url = $"{Config.NodeDistUrl}index.json";
+            var url = $"{_config.NodeDistUrl}index.json";
 
             var content = await _httpClient.GetStringAsync(url);
 
@@ -59,7 +56,7 @@ namespace nvm.Clients
         public async Task<Stream> DownloadZipAsync(string version)
         {
             var name = $"node-{version}-win-x64";
-            var url = $"{Config.NodeDistUrl}{version}/{name}.zip";
+            var url = $"{_config.NodeDistUrl}{version}/{name}.zip";
 
             var data = await _httpClient.GetStreamAsync(url);
             return data;

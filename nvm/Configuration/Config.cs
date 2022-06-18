@@ -1,49 +1,82 @@
 ﻿using System.Collections;
+using System.Text.Json;
 
 namespace nvm.Configuration
 {
-    /// <summary>
-    /// A wrapper around <see cref="Environment.GetEnvironmentVariable(string)"/> and <see cref="Environment.SetEnvironmentVariable(string, string?)" />
-    /// This wrapper allows for the getting and setting of application variables that are stored in the users environment.
-    /// </summary>
-    internal static class Config 
+    internal class Config
     {
-        private const string CURRENT_VERSION_KEY = "NVM_CURRENT_VERSION";
-        private const string INSTALL_FOLDER_KEY = "NVM_INSTALL_LOCATION";
-        private const string NODE_URL_KEY = "NVM_URL";
-        public static string? NodeDistUrl
-        {
-            get => ReadEnvironmentVariable(NODE_URL_KEY, "https://nodejs.org/dist/");
-            set => SetEnvironmentVariable(NODE_URL_KEY, value);
-        }
-        public static string NodeInstallPath
-        {
-            get => ReadEnvironmentVariable(INSTALL_FOLDER_KEY, GetDefaultInstallFolder())!;
-            set => SetEnvironmentVariable(INSTALL_FOLDER_KEY, SetInstallFolder(value));
-        }
+        private static readonly string AppSettingPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "nvm");
 
+        private static readonly string ConfigFile = "config.json";
 
-        public static string? CurrentNodeVersion
+        private string _nodeDistUrl = "https://nodejs.org/dist/";
+        private string _nodeInstallPath = GetDefaultInstallFolder();
+        private string _currentNodeVersion = "";
+        private bool _changesDetected = false;
+
+        public Config(bool forceChanges = false)
         {
-            get => ReadEnvironmentVariable(CURRENT_VERSION_KEY, "");
-            set => SetEnvironmentVariable(CURRENT_VERSION_KEY, value);
+            _changesDetected = forceChanges;
         }
 
-        public static IEnumerable<KeyValuePair<string, string?>> EnumerateValues()
+        public Config()
         {
-            yield return new KeyValuePair<string, string?>(CURRENT_VERSION_KEY, CurrentNodeVersion);
-            yield return new KeyValuePair<string, string?>(INSTALL_FOLDER_KEY, NodeInstallPath);
-            yield return new KeyValuePair<string, string?>(NODE_URL_KEY, NodeDistUrl);
+
         }
 
-        private static string GetDefaultInstallFolder()
+        public string NodeDistUrl
         {
-            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var fullPath = Path.Combine(appdata, "nvm");
-
-            return SetInstallFolder(fullPath);
+            get => _nodeDistUrl;
+            set
+            {
+                _nodeDistUrl = value;
+                _changesDetected = true;
+            }
+        }
+        public string NodeInstallPath
+        {
+            get => _nodeInstallPath;
+            set
+            {
+                _nodeInstallPath = value;
+                _changesDetected = true;
+            }
+        }
+        public string CurrentNodeVersion
+        {
+            get => _currentNodeVersion;
+            set
+            {
+                _currentNodeVersion = value;
+                _changesDetected = true;
+            }
         }
 
+        public static Config Load()
+        {
+            try
+            {
+                var path = Path.Combine(AppSettingPath, ConfigFile);
+                var data = File.ReadAllText(path);
+                return JsonSerializer.Deserialize<Config>(data)!;
+            }
+            catch
+            {
+                return new Config(true);
+            }
+        }
+
+        public void Save()
+        {
+            if (!_changesDetected) { return; }
+
+            var path = Path.Combine(AppSettingPath, ConfigFile);
+            var data = JsonSerializer.Serialize(this);
+            File.WriteAllText(path, data);
+        }
+        
         private static string SetInstallFolder(string? path)
         {
             if (string.IsNullOrEmpty(path))
@@ -58,22 +91,13 @@ namespace nvm.Configuration
 
             return path!;
         }
-
-        private static string? ReadEnvironmentVariable(string variable, string? @default)
+        
+        private static string GetDefaultInstallFolder()
         {
-            var val = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.User);
-            if (string.IsNullOrEmpty(val))
-            {
-                SetEnvironmentVariable(variable, @default);
-                return @default;
-            }
+            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var fullPath = Path.Combine(appdata, "nvm");
 
-            return val;
-        }
-
-        private static void SetEnvironmentVariable(string variable, string? value)
-        {
-            Environment.SetEnvironmentVariable(variable, value, EnvironmentVariableTarget.User);
+            return SetInstallFolder(fullPath);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using nvm.Clients;
 using nvm.Commands;
+using nvm.Configuration;
 using System.CommandLine;
 
 
@@ -13,10 +14,14 @@ namespace nvm
     {
         public static async Task<int> Main(string[] args)
         {
-            var provider = RegisterServices(new ServiceCollection());
+            var config = Config.Load();
+            var provider = RegisterServices(new ServiceCollection(), config);
             var rootCommand = CreateRootCommand(provider);
+            
+            var response = await rootCommand.InvokeAsync(args);
+            config.Save();
 
-            return await rootCommand.InvokeAsync(args);
+            return response;
         }
 
         private static RootCommand CreateRootCommand(IServiceProvider provider)
@@ -34,10 +39,13 @@ namespace nvm
             return rootCommand;
         }
 
-        private static IServiceProvider RegisterServices(IServiceCollection serviceCollection)
+        private static IServiceProvider RegisterServices(IServiceCollection serviceCollection, Config config)
         {
+            serviceCollection.AddSingleton(config);
+
             serviceCollection.AddScoped<NodeClient>();
             serviceCollection.AddScoped<FileSystemClient>();
+
 
             serviceCollection.AddScoped<Command, ListCommand>();
             //serviceCollection.AddScoped<Command, InstallCommand>();

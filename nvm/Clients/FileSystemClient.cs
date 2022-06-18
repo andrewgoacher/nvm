@@ -1,29 +1,26 @@
 ﻿using nvm.Configuration;
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace nvm.Clients
 {
     internal class FileSystemClient
     {
-        public FileSystemClient()
-        {
+        readonly Config _config;
 
+        public FileSystemClient(Config config)
+        {
+            _config = config;
         }
 
         public void RemoveVersion(string version)
         {
-            var path = Path.Combine(Config.NodeInstallPath!, version);
+            var path = Path.Combine(_config.NodeInstallPath!, version);
             Directory.Delete(path, true);
         }
 
         public void SaveVersion(string version, Stream data)
         {
-            Directory.CreateDirectory(Path.Combine(Config.NodeInstallPath!, version));
+            Directory.CreateDirectory(Path.Combine(_config.NodeInstallPath!, version));
 
             using var archive = new ZipArchive(data, ZipArchiveMode.Read);
 
@@ -34,7 +31,7 @@ namespace nvm.Clients
                 if (!string.IsNullOrEmpty(entry.Name))
                 {
                     var target = entry.FullName.Replace(name, version);
-                    var path = Path.Combine(Config.NodeInstallPath!, target);
+                    var path = Path.Combine(_config.NodeInstallPath!, target);
                     Directory.CreateDirectory(Directory.GetParent(path)!.FullName);
                     entry.ExtractToFile(path);
                 }
@@ -43,7 +40,7 @@ namespace nvm.Clients
 
         public IEnumerable<string> GetLocalVersions()
         {
-            var dirs = Directory.GetDirectories(Config.NodeInstallPath!);
+            var dirs = Directory.GetDirectories(_config.NodeInstallPath!);
             return dirs
                 .Select(dir => Path.GetFileName(dir) ?? "")
                 .Where(dir => dir.StartsWith("v"));
