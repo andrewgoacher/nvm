@@ -6,5 +6,5 @@ namespace nvm.Configuration;
 internal class InstallOptions
 {
     [Value(0, Required = true)]
-    public string Version { get; }
+    public string Version { get; set; }
 }
