@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommandLine;
 
-namespace nvm.Configuration
+namespace nvm.Configuration;
+
+[Verb("run", HelpText = "Runs the specified version of node, or the default version")]
+internal class RunOptions
 {
-    internal class RunOptions
-    {
-    }
+    [Value(0, Required = true)]
+    public string Command { get; set; }
+
+    [Option("version", HelpText = "Specifies the version to run")]
+    public string Version { get; set; }
 }

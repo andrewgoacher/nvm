@@ -2,7 +2,7 @@
   "profiles": {
     "nvm": {
       "commandName": "Project",
-      "commandLineArgs": "use 19.8.1"
+      "commandLineArgs": "run \"node -v\""
     }
   }
 }
