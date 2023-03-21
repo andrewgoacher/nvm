@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommandLine;
 
-namespace nvm.Configuration
+namespace nvm.Configuration;
+
+[Verb("list", HelpText = "List all installed versions of node")]
+internal class ListOptions
 {
-    internal class ListOptions
-    {
-    }
 }
