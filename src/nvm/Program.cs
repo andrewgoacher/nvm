@@ -13,13 +13,16 @@ public class Program
         var config = Config.Load();
 
         var result = Parser.Default
-            .ParseArguments<InstallOptions, ListOptions>(args);
+            .ParseArguments<InstallOptions, ListOptions, UseOptions>(args);
 
         await result
             .WithParsedAsync<InstallOptions>(async options => await InstallVersionHandler.Handle(options, config));
 
         await result
             .WithParsedAsync<ListOptions>(async options => await ListVersionsHandler.Handle(options, config));
+
+        await result
+            .WithParsedAsync<UseOptions>(async options => await UseVersionHandler.Handle(options, config));
 
         config.Save();
     }
