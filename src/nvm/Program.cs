@@ -41,7 +41,9 @@ public class Program
 
     private static async Task InstallVersion(NodeClient client, Config config, string version)
     {
-        var versionPath = Path.Combine(config.NodeInstallPath, version);
+        // todo: this naming logic is duplicated in DownloadZipAsync
+        // todo: Handle other OS versions
+        var versionPath = Path.Combine(config.NodeInstallPath, $"node-{version}-win-x64");
         // todo: Handle path existing?
         if (Directory.Exists(versionPath)) 
         {
@@ -51,17 +53,20 @@ public class Program
 
         Directory.CreateDirectory(versionPath);
         Console.WriteLine($"Creating directory {versionPath}");
-        Console.WriteLine("Downloading zip");
-        using var stream = await client.DownloadZipAsync(version);
+        Console.Write("Downloading zip");
 
-        using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+        using var ms = new MemoryStream();
+        using var progress = new ConsoleProgress();
+        await client.DownloadZipAsync(version, ms, progress);
+
+        using var archive = new ZipArchive(ms, ZipArchiveMode.Read);
 
         foreach (var entry in archive.Entries)
         {
             if (entry.CompressedLength == 0) { continue; }
 
             Console.WriteLine($"Extracting {entry.Name}");
-            var filename = Path.Combine(versionPath, entry.FullName);
+            var filename = Path.Combine(config.NodeInstallPath, entry.FullName);
             var path = Path.GetDirectoryName(filename);
             Directory.CreateDirectory(path);
             entry.ExtractToFile(filename);

@@ -58,13 +58,12 @@ internal class NodeClient : IDisposable
         }
     }
 
-    public async Task<Stream> DownloadZipAsync(string version)
+    public async Task DownloadZipAsync(string version, Stream destination, IProgress<float> progress)
     {
         var name = $"node-{version}-win-x64";
         var url = $"{_config.NodeDistUrl}{version}/{name}.zip";
 
-        var data = await _httpClient.GetStreamAsync(url);
-        return data;
+        await _httpClient.DownloadAsync(url, destination, progress);
     }
 
     public void Dispose()
