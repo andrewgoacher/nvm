@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace nvm.Handlers;
 
-internal static class ListVersionsHandler
+internal class ListVersionsHandler : IUseCaseHandler<ListOptions>
 {
     private static readonly Regex _structureRegex = new Regex(@"node-(v\d+\.\d+\.\d+)-win-x64");
 
-    public static Task Handle(ListOptions options, Config config)
+    public Task HandleAsync(Config config, ListOptions options)
     {
         var installPath = config.NodeInstallPath;
         var directories = Directory.GetDirectories(installPath);

@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace nvm.Handlers;
 
-internal static class UseVersionHandler
+internal class UseVersionHandler : IUseCaseHandler<UseOptions>
 {
     private static readonly Regex _structureRegex = new Regex(@"node-(v?\d+\.\d+\.\d+)-win-x64");
 
-    public static Task Handle(UseOptions options, Config config)
+    public Task HandleAsync(Config config, UseOptions options)
     {
         if (!VersionIsInstalled(options.Version, config))
         {

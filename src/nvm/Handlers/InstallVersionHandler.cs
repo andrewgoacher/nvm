@@ -1,12 +1,32 @@
 ﻿using nvm.Configuration;
 using nvm.Node;
 using System.IO.Compression;
+using System.Text;
 
 namespace nvm.Handlers;
 
-internal static class InstallVersionHandler
+internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
 {
-    public static async Task Handle(InstallOptions options, Config config)
+    private HashSet<string> _availableScripts = new HashSet<string>();
+    private readonly string[] validExtensions = new[] { ".cmd", ".bat", ".exe" };
+
+    public InstallVersionHandler(Config config)
+    {
+        var installDir = config.NodeInstallPath;
+        foreach (var file in Directory.GetFiles(installDir))
+        {
+            if (validExtensions.Any(ext => ext.Equals(Path.GetExtension(file))))
+            {
+                var filename = Path.GetFileNameWithoutExtension(file);
+                if (!_availableScripts.Contains(filename))
+                {
+                    _availableScripts.Add(filename);
+                }
+            }
+        }
+    }
+
+    public async Task HandleAsync(Config config, InstallOptions options)
     {
         using var client = new NodeClient(config);
 
@@ -23,7 +43,7 @@ internal static class InstallVersionHandler
         }
     }
 
-    private static async Task InstallVersion(NodeClient client, Config config, string version)
+    private async Task InstallVersion(NodeClient client, Config config, string version)
     {
         // todo: this naming logic is duplicated in DownloadZipAsync
         // todo: Handle other OS versions
@@ -55,5 +75,34 @@ internal static class InstallVersionHandler
             Directory.CreateDirectory(path);
             entry.ExtractToFile(filename);
         }
+
+        // create the missing scripts
+        foreach (var file in Directory.GetFiles(versionPath))
+        {
+            var filename = Path.GetFileNameWithoutExtension(file);
+            if (validExtensions.Any(ext => ext.Equals(Path.GetExtension(file))))
+            {
+                if (!_availableScripts.Contains(filename))
+                {
+                    _availableScripts.Add(filename);
+                    Console.WriteLine($"Need to create file {Path.Combine(Directory.GetCurrentDirectory(), filename)}.ps1");
+                    await CreateFile(filename, Directory.GetCurrentDirectory());
+                }
+            }
+        }
+    }
+
+    private static async Task CreateFile(string command, string dir)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("$str = \"\"");
+        sb.AppendLine("foreach($item in $args)");
+        sb.AppendLine("{");
+        sb.AppendLine("$str += $item + \" \"");
+        sb.AppendLine("}");
+
+        sb.AppendLine($"nvm run {command} $str");
+
+        await File.WriteAllTextAsync(Path.Combine(dir, $"{command}.ps1"), sb.ToString());
     }
 }

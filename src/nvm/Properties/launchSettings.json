@@ -2,7 +2,7 @@
   "profiles": {
     "nvm": {
       "commandName": "Project",
-      "commandLineArgs": "run \"node -v\""
+      "commandLineArgs": "install latest"
     }
   }
 }
