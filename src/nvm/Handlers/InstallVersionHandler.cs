@@ -85,10 +85,17 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
                 if (!_availableScripts.Contains(filename))
                 {
                     _availableScripts.Add(filename);
-                    Console.WriteLine($"Need to create file {Path.Combine(Directory.GetCurrentDirectory(), filename)}.ps1");
-                    await CreateFile(filename, Directory.GetCurrentDirectory());
+                    Console.WriteLine($"Need to create file {Path.Combine(config.NodeInstallPath, filename)}.ps1");
+                    await CreateFile(filename, config.NodeInstallPath);
                 }
             }
+        }
+
+        var currentPath = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User);
+        if (!currentPath.Contains(config.NodeInstallPath))
+        {
+            currentPath += $";{config.NodeInstallPath}";
+            Environment.SetEnvironmentVariable("Path", currentPath, EnvironmentVariableTarget.User);
         }
     }
 
@@ -101,7 +108,7 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
         sb.AppendLine("$str += $item + \" \"");
         sb.AppendLine("}");
 
-        sb.AppendLine($"nvm run {command} $str");
+        sb.AppendLine($"nvm run \"{command} $str\"");
 
         await File.WriteAllTextAsync(Path.Combine(dir, $"{command}.ps1"), sb.ToString());
     }
