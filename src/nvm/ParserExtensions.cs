@@ -19,6 +19,6 @@ internal static class ParserExtensions
             return LogLevel.Diagnostic;
         }
 
-        return options.LogLevel;
+        return LogLevel.Information;
     }
 }

@@ -44,6 +44,8 @@ internal class Config
         }
     }
 
+    public bool IsNewConfig { get; private set; }
+
     public static Config Load()
     {
         try
@@ -54,7 +56,10 @@ internal class Config
         }
         catch
         {
-            return new Config();
+            return new Config()
+            {
+                IsNewConfig = true,
+            };
         }
     }
 

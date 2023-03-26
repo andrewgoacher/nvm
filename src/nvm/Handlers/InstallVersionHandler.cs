@@ -13,21 +13,10 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
 {
     private readonly HashSet<string> _availableScripts = new HashSet<string>();
     private readonly string[] validExtensions = new[] { ".cmd", ".bat", ".exe" };
-    
+
     public InstallVersionHandler(Config config)
     {
-        var installDir = config.NodeInstallPath;
-        foreach (var file in Directory.GetFiles(installDir))
-        {
-            if (validExtensions.Any(ext => ext.Equals(Path.GetExtension(file))))
-            {
-                var filename = Path.GetFileNameWithoutExtension(file);
-                if (!_availableScripts.Contains(filename))
-                {
-                    _availableScripts.Add(filename);
-                }
-            }
-        }
+        GetAvailableScripts(config);
     }
 
     public async Task HandleAsync(Config config, InstallOptions options)
@@ -35,19 +24,69 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
         var loglevel = options.GetLogLevel();
         var logger = new ConsoleLogger(loglevel);
 
+        if (config.IsNewConfig)
+        {
+            var directory = Environment.GetEnvironmentVariable(Node.Constants.NvmHomeEnvironmentFlag);
+        interaction:
+            if (Directory.Exists(directory))
+            {
+                Console.WriteLine("It looks like there is a previous install containing managed node versions.");
+                Console.WriteLine("Would you like to use this install directory?");
+                Console.WriteLine("[Y]es or [N]o");
+
+                var response = Console.ReadLine()?.ToLower() ?? "";
+                switch (response)
+                {
+                    case "y" or "yes":
+                        {
+                            logger.LogInformation("Setting install directory to {0}", directory);
+                            config.NodeInstallPath = directory;
+                            GetAvailableScripts(config);
+                            break;
+                        }
+                    case "n" or "no":
+                        {
+                            logger.LogDiagnostic("Opted to not use currently installed node installations.");
+                            logger.LogDiagnostic("These will not be managed by nvm-dotnet");
+                            break;
+                        }
+                    default: goto interaction;
+                }
+            }
+        }
+
+        // Check if version already exists?
+        // does? Then don't do anything further
+        // does not? Then install it
+
+        // Post installation: Check the tools that need to be installed
+        // Check if we want to set this version as the current version
+
         using var client = new NodeClient(config);
+
+        var versionToInstall = options.Version;
 
         if (Constants.SpecialVersions.Any(ver => options.Version.Equals(ver, StringComparison.OrdinalIgnoreCase)))
         {
             var versions = await client.GetAllNodeVersionsAsync();
             var version = versions.First(version => version.IsLatest);
             logger.LogInformation("Installing latest version of node ({0})", version.Version);
-            await InstallVersion(logger, client, config, version.Version);
+            versionToInstall = version.Version;
         }
         else
         {
-            await InstallVersion(logger, client, config, $"v{options.Version}");
+            versionToInstall = $"v{options.Version}";
         }
+
+        await InstallVersion(logger, client, config, versionToInstall);
+
+        if (options.Use)
+        {
+            logger.LogInformation("Setting the current not version to this version");
+            config.CurrentNodeVersion = versionToInstall;
+        }
+
+        logger.LogInformation("Done");
     }
 
     private async Task InstallVersion(ILogger logger, NodeClient client, Config config, string version)
@@ -58,7 +97,7 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
         // todo: Handle path existing?
         if (Directory.Exists(versionPath))
         {
-            logger.LogDiagnostic("Version already downloaded");
+            logger.LogDiagnostic("Version already downloaded nothing to do here.");
             return;
         }
 
@@ -106,6 +145,23 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
 
             currentPath += $";{config.NodeInstallPath}";
             Environment.SetEnvironmentVariable("Path", currentPath, EnvironmentVariableTarget.Process);
+        }
+    }
+
+    private void GetAvailableScripts(Config config)
+    {
+        _availableScripts.Clear();
+        var installDir = config.NodeInstallPath;
+        foreach (var file in Directory.GetFiles(installDir))
+        {
+            if (validExtensions.Any(ext => ext.Equals(Path.GetExtension(file))))
+            {
+                var filename = Path.GetFileNameWithoutExtension(file);
+                if (!_availableScripts.Contains(filename))
+                {
+                    _availableScripts.Add(filename);
+                }
+            }
         }
     }
 
