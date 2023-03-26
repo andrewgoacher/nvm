@@ -7,11 +7,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		README.md = README.md
+		Todo.md = Todo.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{15B498E7-C869-42D1-9FE3-2A3CD92C68B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nvm", "src\nvm\nvm.csproj", "{B80E35C3-253D-43BE-8ADF-BA3907C2B28D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nvm", "src\nvm\nvm.csproj", "{B80E35C3-253D-43BE-8ADF-BA3907C2B28D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
