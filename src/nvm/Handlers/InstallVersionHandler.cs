@@ -6,13 +6,14 @@ using nvm.Console;
 
 namespace nvm.Handlers;
 
+using nvm.Logging;
 using System;
 
 internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
 {
-    private HashSet<string> _availableScripts = new HashSet<string>();
+    private readonly HashSet<string> _availableScripts = new HashSet<string>();
     private readonly string[] validExtensions = new[] { ".cmd", ".bat", ".exe" };
-
+    
     public InstallVersionHandler(Config config)
     {
         var installDir = config.NodeInstallPath;
@@ -31,22 +32,25 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
 
     public async Task HandleAsync(Config config, InstallOptions options)
     {
+        var loglevel = options.GetLogLevel();
+        var logger = new ConsoleLogger(loglevel);
+
         using var client = new NodeClient(config);
 
-        if (options.Version.Equals("node", StringComparison.OrdinalIgnoreCase) || options.Version.Equals("latest", StringComparison.OrdinalIgnoreCase))
+        if (Constants.SpecialVersions.Any(ver => options.Version.Equals(ver, StringComparison.OrdinalIgnoreCase)))
         {
             var versions = await client.GetAllNodeVersionsAsync();
             var version = versions.First(version => version.IsLatest);
-            Console.WriteLine($"Installing latest version of node ({version.Version})");
-            await InstallVersion(client, config, version.Version);
+            logger.LogInformation("Installing latest version of node ({0})", version.Version);
+            await InstallVersion(logger, client, config, version.Version);
         }
         else
         {
-            await InstallVersion(client, config, $"v{options.Version}");
+            await InstallVersion(logger, client, config, $"v{options.Version}");
         }
     }
 
-    private async Task InstallVersion(NodeClient client, Config config, string version)
+    private async Task InstallVersion(ILogger logger, NodeClient client, Config config, string version)
     {
         // todo: this naming logic is duplicated in DownloadZipAsync
         // todo: Handle other OS versions
@@ -54,13 +58,13 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
         // todo: Handle path existing?
         if (Directory.Exists(versionPath))
         {
-            Console.WriteLine("Version already downloaded");
+            logger.LogDiagnostic("Version already downloaded");
             return;
         }
 
         Directory.CreateDirectory(versionPath);
-        Console.WriteLine($"Creating directory {versionPath}");
-        Console.Write("Downloading zip");
+        logger.LogDiagnostic($"Creating directory {versionPath}");
+        logger.LogInformation("Downloading zip");
 
         using var ms = new MemoryStream();
         using var progress = new ConsoleProgress();
@@ -72,7 +76,7 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
         {
             if (entry.CompressedLength == 0) { continue; }
 
-            Console.WriteLine($"Extracting {entry.Name}");
+            logger.LogDiagnostic($"Extracting {entry.Name}");
             var filename = Path.Combine(config.NodeInstallPath, entry.FullName);
             var path = Path.GetDirectoryName(filename);
             Directory.CreateDirectory(path);
@@ -88,7 +92,7 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
                 if (!_availableScripts.Contains(filename))
                 {
                     _availableScripts.Add(filename);
-                    Console.WriteLine($"Need to create file {Path.Combine(config.NodeInstallPath, filename)}.ps1");
+                    logger.LogDiagnostic($"Need to create file {Path.Combine(config.NodeInstallPath, filename)}.ps1");
                     await CreateFile(filename, config.NodeInstallPath);
                 }
             }
