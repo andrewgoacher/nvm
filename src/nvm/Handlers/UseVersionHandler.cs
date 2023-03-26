@@ -1,4 +1,5 @@
 ﻿using nvm.Configuration;
+using nvm.Node;
 using System.Text.RegularExpressions;
 
 namespace nvm.Handlers;
@@ -7,24 +8,34 @@ internal class UseVersionHandler : IUseCaseHandler<UseOptions>
 {
     private static readonly Regex _structureRegex = new Regex(@"node-(v?\d+\.\d+\.\d+)-win-x64");
 
-    public Task HandleAsync(Config config, UseOptions options)
+    public async Task HandleAsync(Config config, UseOptions options)
     {
-        if (!VersionIsInstalled(options.Version, config))
-        {
-            Console.WriteLine("Specified version is not installed");
-        }
 
         var version = options.Version;
 
-        if (options.Version.StartsWith("v") == false)
+        if (options.Version.Equals("latest", StringComparison.OrdinalIgnoreCase))
+        {
+            using var client = new NodeClient(config);
+            var versions = await client.GetAllNodeVersionsAsync();
+            var latestVersion = versions.First(version => version.IsLatest);
+            Console.WriteLine($"Using latest version ({latestVersion.Version})");
+
+            version = latestVersion.Version;
+        }
+        else if (options.Version.StartsWith("v") == false)
         {
             version = $"v{version}";
         }
+
+        if (!VersionIsInstalled(version, config))
+        {
+            Console.WriteLine("Specified version is not installed");
+            return;
+        }
+
         config.CurrentNodeVersion = version;
 
         Console.WriteLine($"Default version set to {version}");
-
-        return Task.CompletedTask;
     }
 
     // todo: This is repeated from list version handler.

@@ -96,6 +96,9 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
         {
             currentPath += $";{config.NodeInstallPath}";
             Environment.SetEnvironmentVariable("Path", currentPath, EnvironmentVariableTarget.User);
+
+            currentPath += $";{config.NodeInstallPath}";
+            Environment.SetEnvironmentVariable("Path", currentPath, EnvironmentVariableTarget.Process);
         }
     }
 
