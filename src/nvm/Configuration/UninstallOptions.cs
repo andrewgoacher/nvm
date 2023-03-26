@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommandLine;
 
-namespace nvm.Configuration
+namespace nvm.Configuration;
+
+internal class UninstallOptions : ProgramOptions
 {
-    internal class UninstallOptions
-    {
-    }
+    [Value(0, Required = true)]
+    public string Version { get; set; }
 }

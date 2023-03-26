@@ -19,7 +19,7 @@ internal class RunHandler : IUseCaseHandler<RunOptions>
             version = $"v{version}";
         }
 
-        version = $"node-{version}-win-x64";
+        version = $"{version}";
 
         var info = new ProcessStartInfo(version);
         info.UseShellExecute = false;

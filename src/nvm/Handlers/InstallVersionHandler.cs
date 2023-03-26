@@ -93,8 +93,8 @@ internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
     {
         // todo: this naming logic is duplicated in DownloadZipAsync
         // todo: Handle other OS versions
-        var versionPath = Path.Combine(config.NodeInstallPath, $"node-{version}-win-x64");
-        // todo: Handle path existing?
+        var versionPath = Path.Combine(config.NodeInstallPath, $"{version}");
+        
         if (Directory.Exists(versionPath))
         {
             logger.LogDiagnostic("Version already downloaded nothing to do here.");

@@ -7,7 +7,7 @@ namespace nvm.Handlers;
 using System;
 internal class UseVersionHandler : IUseCaseHandler<UseOptions>
 {
-    private static readonly Regex _structureRegex = new Regex(@"node-(v?\d+\.\d+\.\d+)-win-x64");
+    private static readonly Regex _structureRegex = new Regex(@"(v?\d+\.\d+\.\d+)");
 
     public async Task HandleAsync(Config config, UseOptions options)
     {
