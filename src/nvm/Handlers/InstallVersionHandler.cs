@@ -2,8 +2,11 @@
 using nvm.Node;
 using System.IO.Compression;
 using System.Text;
+using nvm.Console;
 
 namespace nvm.Handlers;
+
+using System;
 
 internal class InstallVersionHandler : IUseCaseHandler<InstallOptions>
 {

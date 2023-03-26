@@ -1,6 +1,8 @@
 ﻿using System.Text;
 
-namespace nvm;
+namespace nvm.Console;
+
+using System;
 
 internal class ConsoleProgress : IProgress<float>, IDisposable
 {

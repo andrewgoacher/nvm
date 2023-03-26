@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 
 namespace nvm.Handlers;
 
+using System;
+
 internal class ListVersionsHandler : IUseCaseHandler<ListOptions>
 {
     private static readonly Regex _structureRegex = new Regex(@"node-(v\d+\.\d+\.\d+)-win-x64");
