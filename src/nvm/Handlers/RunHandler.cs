@@ -1,25 +1,37 @@
-﻿using nvm.Configuration;
+﻿using nvm.ApplicationServices;
+using nvm.Configuration;
+using nvm.Logging;
+using nvm.Node;
 using System.Diagnostics;
 
 namespace nvm.Handlers;
 
-internal class RunHandler : IUseCaseHandler<RunOptions>
+internal class RunHandler : HandlerBase<RunOptions>
 {
-    public async Task HandleAsync(Config config, RunOptions options)
+    protected override async Task OnHandleAsync(Config config, ILogger logger, RunOptions options)
     {
+        using var client = new NodeClient(config, logger);
         var version = options.Version;
 
         if (string.IsNullOrEmpty(version))
         {
-            version = config.CurrentNodeVersion;
+            logger.LogInformation("Version not provided, looking for nvmrc file");
+
+            if (!NVMRcParser.TryGetRcVersion(out version))
+            {
+                logger.LogInformation("RC file does not exist.  Defaulting to default version");
+
+                version = config.CurrentNodeVersion;
+            }
         }
 
-        if (version.StartsWith("v") == false)
+        version = await client.GetVersionFromVersion(options.Version);
+
+        if (!await NodeVersionInstaller.CheckInstallAsync(config, logger, version))
         {
-            version = $"v{version}";
+            logger.LogError("The expected version is not installed and user opted not to install it.");
+            return;
         }
-
-        version = $"{version}";
 
         var info = new ProcessStartInfo(version);
         info.UseShellExecute = false;
