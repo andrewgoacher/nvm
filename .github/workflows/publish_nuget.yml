@@ -23,15 +23,10 @@ jobs:
         with:
           source-url: https://nuget.pkg.github.com/andrewgoacher/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}     
-      
-      - name: List directories
-        run: |
-            ls
-            ls src\nvm
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}    
           
       - name: Build solution and generate NuGet package
         run: dotnet pack -c Release 
 
       - name: Push generated package to GitHub registry
-        run: dotnet nuget push ".\src\nvm\nupkg\*.nupkg" --api-key  ${{secrets.NUGET_TOKEN}} --skip-duplicate --no-symbols true
+        run: dotnet nuget push "./src/nvm/nupkg/*.nupkg" --api-key  ${{secrets.NUGET_TOKEN}} --skip-duplicate --no-symbols true
