@@ -13,7 +13,7 @@ internal class NodeToolsInstaller
 
     }
 
-    public async Task ExecuteAsync(Config config, ILogger logger, string versionPath)
+    public async Task InstallAsync (Config config, ILogger logger, string versionPath)
     {
         logger.LogInformation("Checking to see if any node tools need to be installed");
         var availableScripts = GetAvailableScripts(config);
@@ -51,6 +51,21 @@ internal class NodeToolsInstaller
 
             logger.LogInformation("Added the tools path into the environment");
         }
+    }
+
+    public bool Uinstall(Config config, ILogger logger, string version)
+    {
+        var dir = Path.Combine(config.NodeInstallPath, version);
+
+        if (!Directory.Exists(dir))
+        {
+            logger.LogWarning("The version {0} is not installed", version);
+            return false;
+        }
+
+        Directory.Delete(dir, true );
+
+        return config.CurrentNodeVersion.Equals(version, StringComparison.OrdinalIgnoreCase)) ;
     }
 
     private HashSet<string> GetAvailableScripts(Config config)

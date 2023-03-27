@@ -23,6 +23,6 @@ internal class InstallVersionHandler : HandlerBase<InstallOptions>
         }
 
         var nodeToolsInstaller = new NodeToolsInstaller();
-        await nodeToolsInstaller.ExecuteAsync(config, logger, versionPath);
+        await nodeToolsInstaller.InstallAsync(config, logger, versionPath);
     }
 }
