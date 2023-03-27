@@ -39,6 +39,8 @@ internal class NodeVersionInstaller
             logger.LogDiagnostic($"Extracting {entry.Name}");
             var filename = Path.Combine(config.NodeInstallPath, entry.FullName);
             var path = Path.GetDirectoryName(filename);
+            if (string.IsNullOrEmpty(path)) { continue; }
+
             Directory.CreateDirectory(path);
             entry.ExtractToFile(filename);
         }
