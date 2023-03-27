@@ -31,7 +31,7 @@ internal class NodeClient : IDisposable
         {
             var isLts = version.Equals("lts", StringComparison.OrdinalIgnoreCase);
             var versions = await GetAllNodeVersionsAsync();
-            NodeVersion nv = null;
+            NodeVersion? nv = null;
 
             if (isLts)
             {
@@ -82,7 +82,7 @@ internal class NodeClient : IDisposable
                 version.VersionString,
                 version.Date,
                 isLatest: (index == 0),
-                isLts: version.Lts);
+                isLts: version.Lts ?? "");
         }
     }
 
@@ -123,6 +123,6 @@ internal class NodeClient : IDisposable
         public string? Npm { get; set; }
 
         [JsonPropertyName("lts"), JsonConverter(typeof(StringBoolConverter))]
-        public string Lts { get; set; }
+        public string? Lts { get; set; }
     }
 }

@@ -22,7 +22,7 @@ internal class ConsoleProgress : IProgress<float>, IDisposable
     public ConsoleProgress(bool ShowProgressBar = true)
     {
         showProgressBar = ShowProgressBar;
-        timer = new Timer(TimerHandler);
+        timer = new Timer(TimerHandler!);
 
         // A progress bar is only for temporary display in a console window.
         // If the console output is redirected to a file, draw nothing.

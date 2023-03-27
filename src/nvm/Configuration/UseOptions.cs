@@ -6,5 +6,5 @@ namespace nvm.Configuration;
 internal class UseOptions : ProgramOptions
 {
     [Value(0, Required = true)]
-    public string Version { get; set; }
+    public string Version { get; set; } = "";
 }
