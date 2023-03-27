@@ -53,21 +53,6 @@ internal class NodeToolsInstaller
         }
     }
 
-    public bool Uinstall(Config config, ILogger logger, string version)
-    {
-        var dir = Path.Combine(config.NodeInstallPath, version);
-
-        if (!Directory.Exists(dir))
-        {
-            logger.LogWarning("The version {0} is not installed", version);
-            return false;
-        }
-
-        Directory.Delete(dir, true );
-
-        return config.CurrentNodeVersion.Equals(version, StringComparison.OrdinalIgnoreCase)) ;
-    }
-
     private HashSet<string> GetAvailableScripts(Config config)
     {
         var scripts = new HashSet<string>();

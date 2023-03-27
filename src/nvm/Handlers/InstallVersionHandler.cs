@@ -13,9 +13,7 @@ internal class InstallVersionHandler : HandlerBase<InstallOptions>
         using var client = new NodeClient(config, logger);
         var version = await client.GetVersionFromVersion(options.Version);
 
-        var installer = new NodeVersionInstaller();
-
-        var versionPath = await installer.ExecuteAsync(config, logger, version);
+        var versionPath = await NodeVersionInstaller.InstallAsync(config, logger, version);
         if (string.IsNullOrEmpty(versionPath))
         {
             logger.LogWarning("No version path returned.  Installer exited early");

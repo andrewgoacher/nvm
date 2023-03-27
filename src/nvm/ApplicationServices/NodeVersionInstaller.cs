@@ -8,7 +8,7 @@ namespace nvm.ApplicationServices;
 
 internal class NodeVersionInstaller
 {
-    public async Task<string?> ExecuteAsync(Config config, ILogger logger, string version)
+    public static async Task<string?> InstallAsync(Config config, ILogger logger, string version)
     {
         using var client = new NodeClient(config, logger);
 
@@ -47,6 +47,29 @@ internal class NodeVersionInstaller
         return versionPath;
     }
 
+    public static async Task<bool> CheckInstallAsync(Config config, ILogger logger, string version)
+    {
+        var versionEnumerator = new InstalledVersionEnumerator();
+        var installedVersions = versionEnumerator.GetInstalledVersions(config.NodeInstallPath);
+
+        if (!installedVersions.Any(ver => ver.Equals(version, StringComparison.OrdinalIgnoreCase)))
+        {
+            logger.LogWarning("This selected version is not installed.  Prompting user to install.");
+
+            if (TryGetAnswerForInstall(logger, out var shouldInstall) && shouldInstall)
+            {
+                await InstallAsync(config, logger, version);
+            }
+            else
+            {
+                logger.LogWarning("This version is not installed.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static bool Uninstall(Config config, ILogger logger, string version)
     {
         var dir = Path.Combine(config.NodeInstallPath, version);
@@ -60,5 +83,33 @@ internal class NodeVersionInstaller
         Directory.Delete(dir, true);
 
         return config.CurrentNodeVersion.Equals(version, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryGetAnswerForInstall(ILogger logger, out bool shouldInstall)
+    {
+        System.Console.WriteLine("The version you have selected is not installe.");
+        System.Console.WriteLine("Would you like to install this version?");
+        System.Console.WriteLine("[Y]es or [N]o");
+
+        var response = System.Console.ReadLine()?.ToLower() ?? "";
+
+        switch (response)
+        {
+            case "yes" or "y":
+                {
+                    logger.LogInformation("User has opted to install this version");
+                    shouldInstall = true;
+                    return true;
+                }
+            case "no" or "n":
+                {
+                    logger.LogInformation("User has opted not to install this version");
+                    shouldInstall = false;
+                    return true;
+                }
+        }
+
+        shouldInstall = false;
+        return false;
     }
 }
