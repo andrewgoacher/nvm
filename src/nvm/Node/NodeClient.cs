@@ -2,6 +2,7 @@
 
 using nvm.Configuration;
 using nvm.Json.Converters;
+using nvm.Logging;
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,16 +11,43 @@ internal class NodeClient : IDisposable
 {
     readonly HttpClient _httpClient;
     readonly Config _config;
+    readonly ILogger _logger;
 
-    public NodeClient(Config config)
+    public NodeClient(Config config, ILogger logger)
     {
         _httpClient = new HttpClient();
         _config = config;
+        _logger = logger;
     }
 
     ~NodeClient()
     {
         Dispose(false);
+    }
+
+    public async Task<string> GetVersionFromVersion(string version)
+    {
+        if (NodeVersion.IsSpecialVersion(version))
+        {
+            var isLts = version.Equals("lts", StringComparison.OrdinalIgnoreCase);
+            var versions = await GetAllNodeVersionsAsync();
+            NodeVersion nv = null;
+
+            if (isLts)
+            {
+                nv = versions.First(version => version.LtsValue == "true");
+                _logger.LogInformation("Installing lts version of node {0}", nv.Version);
+            }
+            else
+            {
+                nv = versions.First(version => version.IsLatest);
+                _logger.LogInformation("Installing latest version of node {0}", nv.Version);
+            }
+
+            return nv.Version;  
+        }
+
+        return $"v{version}";
     }
 
     public async Task<IEnumerable<NodeVersion>> GetAllNodeVersionsAsync()

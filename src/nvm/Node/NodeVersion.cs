@@ -4,6 +4,8 @@ namespace nvm.Node;
 
 internal partial class NodeVersion
 {
+    private static readonly string[] SpecialVersions = new[] { "node", "latest", "lts" };
+
     const string VERSION_REGEX_PATTERN = @"v(\d+)\.(\d+)\.(\d+).*";
     const string DATE_REGEX_PATTERN = @".*(\d{4}-\d{2}-\d{2}).*";
 
@@ -40,6 +42,11 @@ internal partial class NodeVersion
         }
     }
     public DateOnly ReleaseDate { get; }
+
+    public static bool IsSpecialVersion(string version)
+    {
+        return SpecialVersions.Any(ver => version.Equals(ver, StringComparison.OrdinalIgnoreCase));
+    }
 
     public static NodeVersion? Parse(string version, string date, bool isLatest = false, string isLts = "")
     {

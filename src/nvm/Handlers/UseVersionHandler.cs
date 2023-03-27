@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace nvm.Handlers;
 
+using nvm.Console;
 using System;
 internal class UseVersionHandler : IUseCaseHandler<UseOptions>
 {
@@ -11,12 +12,14 @@ internal class UseVersionHandler : IUseCaseHandler<UseOptions>
 
     public async Task HandleAsync(Config config, UseOptions options)
     {
+        var logLevel = options.GetLogLevel();
+        var logger = new ConsoleLogger(logLevel);
 
         var version = options.Version;
 
         if (options.Version.Equals("latest", StringComparison.OrdinalIgnoreCase))
         {
-            using var client = new NodeClient(config);
+            using var client = new NodeClient(config, logger);
             var versions = await client.GetAllNodeVersionsAsync();
             var latestVersion = versions.First(version => version.IsLatest);
             Console.WriteLine($"Using latest version ({latestVersion.Version})");
