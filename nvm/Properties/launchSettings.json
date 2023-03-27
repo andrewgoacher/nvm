@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "nvm": {
-      "commandName": "Project",
-      "commandLineArgs": "list "
-    }
-  }
-}
