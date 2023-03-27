@@ -13,7 +13,7 @@ public class Program
         var result = Parser.Default
             .ParseArguments<InstallOptions, ListOptions, UseOptions, RunOptions>(args);
 
-        await result.Handle(config, new InstallVersionHandler(config));
+        await result.Handle(config, new InstallVersionHandler());
         await result.Handle(config, new ListVersionsHandler());
         await result.Handle(config, new UseVersionHandler());
         await result.Handle(config, new RunHandler());

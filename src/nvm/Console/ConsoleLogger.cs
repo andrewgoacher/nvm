@@ -40,7 +40,8 @@ public class ConsoleLogger : ILogger
             LogLevel.Diagnostic => System.ConsoleColor.Cyan,
             LogLevel.Information => System.ConsoleColor.White,
             LogLevel.Warning => System.ConsoleColor.Yellow,
-            LogLevel.Error or LogLevel.Critical => System.ConsoleColor.Red
+            LogLevel.Error or LogLevel.Critical => System.ConsoleColor.Red,
+            _ => ConsoleColor.White
         };
 
         var handle = level switch
@@ -49,7 +50,8 @@ public class ConsoleLogger : ILogger
             LogLevel.Information => "[Info]: ",
             LogLevel.Warning => "[Warn]: ",
             LogLevel.Error => "[Error]: ",
-            LogLevel.Critical => "[Critical]: "
+            LogLevel.Critical => "[Critical]: ",
+            _ => "[Info]: "
         };
 
         System.Console.ForegroundColor = handleColor;

@@ -1,47 +1,40 @@
 ﻿using nvm.Configuration;
-using System.Text.RegularExpressions;
 
 namespace nvm.Handlers;
 
-using nvm.Console;
+using nvm.ApplicationServices;
 using nvm.Logging;
 using System;
 
-internal class ListVersionsHandler : IUseCaseHandler<ListOptions>
+internal class ListVersionsHandler : HandlerBase<ListOptions>
 {
-    private static readonly Regex _structureRegex = new Regex(@"(v\d+\.\d+\.\d+)");
 
-    public Task HandleAsync(Config config, ListOptions options)
+    protected override Task OnHandleAsync(Config config, ILogger logger, ListOptions options)
     {
-        var loglevel = options.GetLogLevel();
-        var logger = new ConsoleLogger(loglevel);
-
-        var installPath = config.NodeInstallPath;
-        var directories = Directory.GetDirectories(installPath);
-        var installs = directories.Select(dir => _structureRegex.Match(dir));
-
         logger.LogInformation("Listing installed versions of node");
+        var enumerator = new InstalledVersionEnumerator();
 
-        if (installs.Any() == false)
+        var installs = enumerator.GetInstalledVersions(config.NodeInstallPath);
+
+        if (!installs.Any())
         {
             Console.WriteLine("No installed versions found");
+            return Task.CompletedTask;
         }
-        else
+
+        foreach(var install in installs )
         {
-            foreach (var install in installs)
+            if (install.Equals(config.CurrentNodeVersion))
             {
-                if (install.Success)
-                {
-                    var dir = install.Groups[1].Value;
-                    if (dir.Equals(config.CurrentNodeVersion, StringComparison.OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine($"{dir} (*)");
-                    }
-                    else
-                    {
-                        Console.WriteLine(dir);
-                    }
-                }
+                Console.Write(install);
+                var currentColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(" *");
+                Console.ForegroundColor = currentColor;
+            }
+            else
+            {
+                Console.WriteLine(install);
             }
         }
 

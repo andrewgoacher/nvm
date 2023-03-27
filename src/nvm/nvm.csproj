@@ -9,7 +9,7 @@
 		<ToolCommandName>nvm</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 		<Authors>Andrew Goacher</Authors>
-		<Version>1.0.0</Version>
+		<Version>2.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

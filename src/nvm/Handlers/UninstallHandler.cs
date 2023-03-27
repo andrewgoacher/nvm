@@ -1,36 +1,26 @@
-﻿using nvm.Configuration;
-using nvm.Console;
+﻿using nvm.ApplicationServices;
+using nvm.Configuration;
 using nvm.Logging;
 
 namespace nvm.Handlers;
 
-internal class UninstallHandler : IUseCaseHandler<UninstallOptions>
+internal class UninstallHandler : HandlerBase<UninstallOptions>
 {
-    public Task HandleAsync(Config config, UninstallOptions options)
+    protected override Task OnHandleAsync(Config config, ILogger logger, UninstallOptions options)
     {
-        var loglevel = options.GetLogLevel();
-        var logger = new ConsoleLogger(loglevel);
-
         var version = options.Version;
         if (!version.StartsWith("v"))
         {
             version = $"v{version}";
         }
 
-        var dir = Path.Combine(config.NodeInstallPath, version);
+        var isCurrent = NodeVersionInstaller.Uninstall(config, logger, version);
 
-        if (!Directory.Exists(dir))
-        {
-            logger.LogWarning("The version {0} is not installed", version);
-            return Task.CompletedTask;
-        }
-
-        if (config.CurrentNodeVersion.Equals(version, StringComparison.OrdinalIgnoreCase))
+        if (isCurrent)
         {
             logger.LogWarning("This is the current version.  Uninstalling this will unset the current version");
             config.CurrentNodeVersion = "";
         }
-        Directory.Delete(dir, true);
 
         return Task.CompletedTask;
     }
