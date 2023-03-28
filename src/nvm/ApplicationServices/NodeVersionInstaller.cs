@@ -37,7 +37,10 @@ internal class NodeVersionInstaller
             if (entry.CompressedLength == 0) { continue; }
 
             logger.LogDiagnostic($"Extracting {entry.Name}");
-            var filename = Path.Combine(config.NodeInstallPath, entry.FullName);
+            var entryName = entry.FullName;
+            var root = entryName.Substring(0, entryName.IndexOf('/'));
+            entryName = entryName.Replace(root, version);
+            var filename = Path.Combine(config.NodeInstallPath, entryName);
             var path = Path.GetDirectoryName(filename);
             if (string.IsNullOrEmpty(path)) { continue; }
 

@@ -2,7 +2,7 @@
   "profiles": {
     "nvm": {
       "commandName": "Project",
-      "commandLineArgs": "install latest"
+      "commandLineArgs": "run \"node -v\" --version 10.8.0"
     }
   }
 }
