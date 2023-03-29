@@ -10,24 +10,24 @@ internal class RunHandler : HandlerBase<RunOptions>
 {
     protected override async Task OnHandleAsync(Config config, ILogger logger, RunOptions options)
     {
-        using var client = new NodeClient(config, logger);
         var version = options.Version;
 
         if (string.IsNullOrEmpty(version))
         {
-            logger.LogInformation("Version not provided, looking for nvmrc file");
+            logger.LogDiagnostic("Version not provided, looking for nvmrc file");
 
             if (!NVMRcParser.TryGetRcVersion(out version))
             {
-                logger.LogInformation("RC file does not exist.  Defaulting to default version");
+                logger.LogDiagnostic("RC file does not exist.  Defaulting to default version");
 
                 version = config.CurrentNodeVersion;
             }
         }
 
-        version = await client.GetVersionFromVersion(options.Version);
+        var installer = new Installer(config, logger);
+        installer.Installed += Installer_Installed;
 
-        if (!await NodeVersionInstaller.CheckInstallAsync(config, logger, version))
+        if (!await installer.CheckInstallAsync(version))
         {
             logger.LogError("The expected version is not installed and user opted not to install it.");
             return;
@@ -48,5 +48,10 @@ internal class RunHandler : HandlerBase<RunOptions>
         info.Arguments = args;
 
         Process.Start(info);
+
+        void Installer_Installed(object? sender, Events.InstalledEventArgs e)
+        {
+            version = e.Version;
+        }
     }
 }

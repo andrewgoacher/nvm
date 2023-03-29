@@ -2,7 +2,7 @@
   "profiles": {
     "nvm": {
       "commandName": "Project",
-      "commandLineArgs": "run \"node -v\" --version 10.8.0"
+      "commandLineArgs": "install lts --use"
     }
   }
 }

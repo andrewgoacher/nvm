@@ -1,27 +1,25 @@
-﻿using nvm.ApplicationServices;
-using nvm.Configuration;
+﻿using nvm.Configuration;
 using nvm.Logging;
+using nvm.Node;
 
 namespace nvm.Handlers;
 
 internal class UninstallHandler : HandlerBase<UninstallOptions>
 {
-    protected override Task OnHandleAsync(Config config, ILogger logger, UninstallOptions options)
+    protected override async Task OnHandleAsync(Config config, ILogger logger, UninstallOptions options)
     {
-        var version = options.Version;
-        if (!version.StartsWith("v"))
+        var installer = new Installer(config, logger);
+        installer.Uninstalled += Installer_Uninstalled;
+
+        await installer.UninstallAsync(options.Version);
+
+        void Installer_Uninstalled(object? sender, Events.UninstalledEventArgs e)
         {
-            version = $"v{version}";
+            if (e.CurrentVersion)
+            {
+                logger.LogWarning("This is the current version.  Uninstalling this will unset the current version");
+                config.CurrentNodeVersion = "";
+            }
         }
-
-        var isCurrent = NodeVersionInstaller.Uninstall(config, logger, version);
-
-        if (isCurrent)
-        {
-            logger.LogWarning("This is the current version.  Uninstalling this will unset the current version");
-            config.CurrentNodeVersion = "";
-        }
-
-        return Task.CompletedTask;
     }
 }

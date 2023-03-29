@@ -26,7 +26,7 @@ internal abstract class HandlerBase<TOptions> : IUseCaseHandler<TOptions>
 
         logger.LogInformation("This is a new nvm install. Checking for previous NVM installations");
 
-        var nvmHomeEnv = Environment.GetEnvironmentVariable(Node.Constants.NvmHomeEnvironmentFlag);
+        var nvmHomeEnv = Environment.GetEnvironmentVariable(Node.Nvm.NvmHomeEnvironmentFlag);
         if (string.IsNullOrEmpty(nvmHomeEnv))
         {
             logger.LogInformation("No NVM install found.");
