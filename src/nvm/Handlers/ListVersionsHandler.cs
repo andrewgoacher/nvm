@@ -2,8 +2,8 @@
 
 namespace nvm.Handlers;
 
-using nvm.ApplicationServices;
 using nvm.Logging;
+using nvm.Node;
 using System;
 
 internal class ListVersionsHandler : HandlerBase<ListOptions>
@@ -12,8 +12,8 @@ internal class ListVersionsHandler : HandlerBase<ListOptions>
     protected override Task OnHandleAsync(Config config, ILogger logger, ListOptions options)
     {
         logger.LogInformation("Listing installed versions of node");
-        var enumerator = new InstalledVersionEnumerator();
 
+        var enumerator = new InstalledVersionEnumerator();
         var installs = enumerator.GetInstalledVersions(config.NodeInstallPath);
 
         if (!installs.Any())

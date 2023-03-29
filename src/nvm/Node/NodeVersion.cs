@@ -31,8 +31,8 @@ internal partial class NodeVersion
     public bool IsLatest => _isLatest;
     public string LtsValue => _ltsValue;
     public int Major => _major;
-    public int Minor => _major;
-    public int Patch => _major;
+    public int Minor => _minor;
+    public int Patch => _patch;
 
     public string Version
     {

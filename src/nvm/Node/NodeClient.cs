@@ -25,7 +25,7 @@ internal class NodeClient : IDisposable
         Dispose(false);
     }
 
-    public async Task<string> GetVersionFromVersion(string version)
+    public async Task<string> GetVersionFromVersionAsync(string version)
     {
         if (NodeVersion.IsSpecialVersion(version))
         {
@@ -35,13 +35,17 @@ internal class NodeClient : IDisposable
 
             if (isLts)
             {
-                nv = versions.First(version => version.LtsValue == "true");
-                _logger.LogInformation("Installing lts version of node {0}", nv.Version);
+                var ltsVersion = versions
+                    .Where(v => !string.IsNullOrEmpty(v.LtsValue) && v.LtsValue != "false")
+                    .OrderByDescending(v => v.ReleaseDate);
+
+                nv = ltsVersion.First();
+                _logger.LogDiagnostic("Version is lts version of node {0}", nv.Version);
             }
             else
             {
                 nv = versions.First(version => version.IsLatest);
-                _logger.LogInformation("Installing latest version of node {0}", nv.Version);
+                _logger.LogDiagnostic("Version is latest version of node {0}", nv.Version);
             }
 
             return nv.Version;  

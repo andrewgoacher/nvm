@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace nvm.ApplicationServices;
+namespace nvm.Node;
 
 internal class InstalledVersionEnumerator
 {
@@ -20,7 +20,7 @@ internal class InstalledVersionEnumerator
             .Select(x => $"v{x.Item1}.{x.Item2}.{x.Item3}");
     }
 
-    private static (int,int,int) GetParts(string version)
+    private static (int, int, int) GetParts(string version)
     {
         var parts = version.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 
