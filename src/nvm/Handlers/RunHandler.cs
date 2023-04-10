@@ -27,6 +27,9 @@ internal class RunHandler : HandlerBase<RunOptions>
         var installer = new Installer(config, logger);
         installer.Installed += Installer_Installed;
 
+        using var client = new NodeClient(config, logger);
+        version = await client.GetVersionFromVersionAsync(version);
+
         if (!await installer.CheckInstallAsync(version))
         {
             logger.LogError("The expected version is not installed and user opted not to install it.");

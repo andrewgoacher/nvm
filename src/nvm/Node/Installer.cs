@@ -11,11 +11,11 @@ internal class Installer
 {
     private readonly string[] _validExtensions = new[] { ".cmd", ".bat", ".exe" };
 
-    private Config _config;
-    private ILogger _logger;
+    private readonly Config _config;
+    private readonly ILogger _logger;
 
-    public event EventHandler<UninstalledEventArgs> Uninstalled;
-    public event EventHandler<InstalledEventArgs> Installed;
+    public event EventHandler<UninstalledEventArgs>? Uninstalled;
+    public event EventHandler<InstalledEventArgs>? Installed;
 
     public Installer(Config config, ILogger logger)
     {
@@ -83,13 +83,15 @@ internal class Installer
             var filename = Path.GetFileNameWithoutExtension(file);
             if (_validExtensions.Any(ext => ext.Equals(Path.GetExtension(file))))
             {
-                if (!availableScripts.Contains(filename))
+                if (availableScripts.Contains(filename))
                 {
-                    availableScripts.Add(filename);
-                    _logger.LogDiagnostic($"Need to create file {Path.Combine(_config.NodeInstallPath, filename)}.ps1");
-                    await CreateFile(filename, _config.NodeInstallPath);
-                    generateFiles = true;
+                    continue;
                 }
+
+                availableScripts.Add(filename);
+                _logger.LogDiagnostic($"Need to create file {Path.Combine(_config.NodeInstallPath, filename)}.ps1");
+                await CreateFile(filename, _config.NodeInstallPath);
+                generateFiles = true;
             }
         }
 
@@ -176,21 +178,18 @@ internal class Installer
 
     private HashSet<string> GetAvailableScripts(Config config)
     {
-        var scripts = new HashSet<string>();
         var installDir = config.NodeInstallPath;
-        foreach (var file in Directory.GetFiles(installDir))
-        {
-            if (_validExtensions.Any(ext => ext.Equals(Path.GetExtension(file))))
-            {
-                var filename = Path.GetFileNameWithoutExtension(file);
-                if (!scripts.Contains(filename))
-                {
-                    scripts.Add(filename);
-                }
-            }
-        }
+        return Directory.GetFiles(installDir)
+            .Where(IsValidExtension)
+            .Select(file => Path.GetFileNameWithoutExtension(file)!)
+            .Distinct()
+            .ToHashSet();
 
-        return scripts;
+        bool IsValidExtension(string file)
+        {
+            var ext = Path.GetExtension(file);
+            return _validExtensions.Any(extension => extension.Equals(ext));
+        }
     }
 
     private static async Task CreateFile(string command, string dir)

@@ -2,6 +2,6 @@
 {
     internal class InstalledEventArgs
     {
-        public string Version { get; set; }
+        public string Version { get; set; } = string.Empty;
     }
 }
