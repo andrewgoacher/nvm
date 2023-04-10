@@ -37,7 +37,9 @@ internal class NodeClient : IDisposable
             {
                 var ltsVersion = versions
                     .Where(v => !string.IsNullOrEmpty(v.LtsValue) && v.LtsValue != "false")
-                    .OrderByDescending(v => v.ReleaseDate);
+                    .OrderByDescending(v => v.Major)
+                    .ThenByDescending(v => v.Minor)
+                    .ThenByDescending(v => v.Patch);
 
                 nv = ltsVersion.First();
                 _logger.LogDiagnostic("Version is lts version of node {0}", nv.Version);
@@ -117,7 +119,7 @@ internal class NodeClient : IDisposable
         }
     }
 
-    private class Version
+    private sealed class Version
     {
         [JsonPropertyName("version")]
         public string? VersionString { get; set; }
