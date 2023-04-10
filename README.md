@@ -63,6 +63,6 @@ You will need to close and reopen your terminal for them to be reflected in the 
 * `nvm use 1.2.3|v1.2.3|latest|node|lts` sets the specified version of node as the current version
 
 * `nvm run "npm install"` runs the command under the currently used version of node (unless .nvmrc is in the directory)
-* `nvm run --version 1.2.3|v1.2.3 ""npm install""` runs the command specified under the specified version of node.
+* `nvm run ""npm install"" --version 1.2.3|v1.2.3` runs the command specified under the specified version of node.
 
 Currently only really supported for windows because that's what I'm working on right now.
