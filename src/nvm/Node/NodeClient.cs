@@ -51,6 +51,11 @@ internal class NodeClient : IDisposable
             return nv.Version;  
         }
 
+        if (version.StartsWith("v"))
+        {
+            return version;
+        }
+
         return $"v{version}";
     }
 
